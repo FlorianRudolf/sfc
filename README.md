@@ -28,7 +28,11 @@ The SQLite database as well as the files are stored in the container file. The i
 
 A file is the central entity of the the container.
 
-## File occurrences
+A file is stored in the container file, optionally compressed and optionally encrypted. The file is compressed first and then encrypted (encrypted files are usually not good compress-able). For each file, the hash of the source is stored in the database. If the file is encrypted, the source hashes are encrypted as well. The hashes of the encrypted file are also stored for file verification.
+
+Optionally, there is support for error-detecting/-correcting data for detecting and possibly correcting file data in-consistences.
+
+## File occurrences/instances
 
 ## Encryption and Keys
 
@@ -54,6 +58,14 @@ SFC is required to store the following key data:
 
 Needed for fast file identification.
 
+## ES-Hashes
+
+Hashes are important tools for file identification and verification, especially in forensic applications. Hashes are binary values which are usually represented using a hexadecimal digits. Theoretically, every (same-sized) value represents a hash for a valid file. For example, an MD5 hash has a size of 128 bit, so every 128 bit value (theoretically) represents an MD5 hash for valid file. If, for some reason, one or more bits within a hash flip, the error cannot be detected or even corrected. 
+
+Therefore, SFC introduces error-stable Hashes (in short ES-hashes) by using error-correcting codes (likely reed-solomon or similar). So, instead of MD5, ES-MD5 is used and so on. The representation is in the form of md5_in_hex-ecc_data.
+
+Note: This concept should intuatively be called ECC-Hashes (due to the use of error-correcting codes), however the term ECC-Hash is used in the community for Eliptic Curve Cryptography. 
+
 # Data Models/Database Layout
 
 Key
@@ -65,32 +77,23 @@ Key
 File
  * id: Integer, primary key
  * key_id: Integer, references(Key.id), null-able
+ * compression: String, null-able
+ * edc_ecc_method: String, null-able (the error-detecing/-correcting code method)
+ * edc_ecc_data: Stirng, null-able (path to the edc/ecc data stored in the container file)
  * hash_sha256_encrypted: String, null-able
  * hash_md5_source: String # if key_id is not null -> encrypted (with key_id) md5 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
  * hash_sha1_source: String # if key_id is not null -> encrypted (with key_id) sha1 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
  * hash_sha256_source: String # if key_id is not null -> encrypted (with key_id) sha256 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
 
-FileMeta
- * id: Integer, primary key
- * file_id: Integer, references(File.id)
- * key_id: Integer, references(Key.id), null-able
- * name: String
- * value: String
-
 FileInstance
  * id: integer, primary key
  * file_id: Integer, references(File.id)
  
-FileInstanceMeta
+MetaData
  * id: Integer, primary key
- * file_instance_id: Integer, references(FileInstance.id)
+ * object_type: Enum(0: global, 1: file, 2: FileInstance)
+ * object_id: Integer, null-able, references(File.id or FileInstance.id)
  * key_id: Integer, references(Key.id), null-able
- * name: String
- * value: String
- 
-GlobalMeta
- * id: Integer, primary_key
- * key_id:  Integer, references(Key.id), null-able
  * name: String
  * value: String
  
@@ -106,3 +109,16 @@ Used libraries/tools:
  * SQLAlchemy
  * cryptography
  
+The first implementation of SFC aims to implement the following features:
+ * tar file container
+ * SQLite database
+ * asymmetric file and meta data encryption using RSA
+ * symmetric file and meta data encryption using AES
+ * ES-Hashes
+ * create a new SFC
+ * add files/meta-data to a SFC
+ * read/extract files/meta-data from a SFC
+ * remove files/meta-data from a SFC
+ 
+The following features will be reserved for later usage:
+ * Error-detecting/-correcting codes for file data
