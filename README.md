@@ -50,21 +50,36 @@ SFC is required to store the following key data:
  
 ## Meta data
 
+Specified global meta data:
+ * SFC_DEFAULT_KEY_ID -> Integer (Key ID)
+
+Specified file meta data:
+ * SFC_SIZE -> Integer
+
+Specified file instance meta data:
+ * SFC_FILEPATH -> String
+ * SFC_MODIFICATION_TIME -> String (ISO Timestamp)
+ * SFC_ACCESS_TIME -> String (ISO Timestamp)
+ * SFC_CREATION_TIME -> String (ISO Timestamp)
+ * SFC_CHANGE_TIME -> String (ISO Timestamp)
+ * SFC_OWNER_USER_ID -> String
+ * SFC_OWNER_GROUP_ID -> String
+
 ## Serialization
 
--> base64 encoding
+All binary data within the database is base64 encoded. This is especially true for encrypted data.
 
 ## Encrypted hash mapping
 
 Needed for fast file identification.
 
-## RS-Hashes
+## RSECC-Hashes
 
 Hashes are important tools for file identification and verification, especially in forensic applications. Hashes are binary values which are usually represented using a hexadecimal digits. Theoretically, every (same-sized) value represents a hash for a valid file. For example, an MD5 hash has a size of 128 bit, so every 128 bit value (theoretically) represents an MD5 hash for valid file. If, for some reason, one or more bits within a hash flip, the error cannot be detected or even corrected. 
 
-Therefore, SFC introduces Reed-Solomon-Hashes (in short RS-Hashes) by using Reed-Solomon error-correcting codes. So, instead of MD5, RS-MD5 is used and so on. The hash is extended by an error-correcting Reed-Solomon code with one fourth of the size of the hash. For example, RS-MD5 extends the 16 byte (128 bits) MD5 hash with an additional 4 bytes (32 bits) of error-correcting Reed-Solomon code. A MD5 hash of 86fb269d190d2c85f6e0468ceca42a20 will be extended by 0e4e03a6. The recommended representation is 86fb269d-190d2c85-f6e0468c-eca42a20/0e4e03a6.
+Therefore, SFC introduces Reed-Solomon-Error-Correcting-Codes-Hashes (in short RSECC-Hashes) by using Reed-Solomon error-correcting codes. So, instead of MD5, RSECC-MD5 is used and so on. The hash is extended by an error-correcting Reed-Solomon code with one fourth of the size of the hash. For example, RSECC-MD5 extends the 16 byte (128 bits) MD5 hash with an additional 4 bytes (32 bits) of error-correcting Reed-Solomon code. A MD5 hash of 86fb269d190d2c85f6e0468ceca42a20 will be extended by 0e4e03a6. The recommended representation of the RSECC-MD5 is 86fb269d-190d2c85-f6e0468c-eca42a20/0e4e03a6 (cluster by 4-byte blocks).
 
-Note: This concept should intuatively be called ECC-Hashes (due to the use of error-correcting codes), however the term ECC-Hash is used in the community for Eliptic Curve Cryptography. 
+Note: This concept should intuatively be called ECC-Hashes (due to the use of error-correcting codes), however the term ECC-Hash is used in the community for Eliptic Curve Cryptography. RS-Hash can be confused with Robert Sedgewick's string hashing algorithm. Therefore the name RSECC-Hash is used.
 
 # Data Models/Database Layout
 
@@ -80,10 +95,10 @@ File
  * compression: String, null-able
  * edc_ecc_method: String, null-able (the error-detecing/-correcting code method)
  * edc_ecc_data: Stirng, null-able (path to the edc/ecc data stored in the container file)
- * hash_sha256_encrypted: String, null-able
- * hash_md5_source: String # if key_id is not null -> encrypted (with key_id) md5 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
- * hash_sha1_source: String # if key_id is not null -> encrypted (with key_id) sha1 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
- * hash_sha256_source: String # if key_id is not null -> encrypted (with key_id) sha256 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
+ * hash_rsecc_sha256_encrypted: String, null-able
+ * hash_rsecc_md5_source: String # if key_id is not null -> encrypted (with key_id) md5 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
+ * hash_rsecc_sha1_source: String # if key_id is not null -> encrypted (with key_id) sha1 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
+ * hash_rsecc_sha256_source: String # if key_id is not null -> encrypted (with key_id) sha256 hash of source file, base64 encoded; if key_id is null -> md5 hash of source file
 
 FileInstance
  * id: integer, primary key
@@ -114,7 +129,7 @@ The first implementation of SFC aims to implement the following features:
  * SQLite database
  * asymmetric file and meta data encryption using RSA
  * symmetric file and meta data encryption using AES
- * RS-Hashes
+ * RSECC-Hashes
  * create a new SFC
  * add files/meta-data to a SFC
  * read/extract files/meta-data from a SFC
