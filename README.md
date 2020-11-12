@@ -58,11 +58,11 @@ SFC is required to store the following key data:
 
 Needed for fast file identification.
 
-## ES-Hashes
+## RS-Hashes
 
 Hashes are important tools for file identification and verification, especially in forensic applications. Hashes are binary values which are usually represented using a hexadecimal digits. Theoretically, every (same-sized) value represents a hash for a valid file. For example, an MD5 hash has a size of 128 bit, so every 128 bit value (theoretically) represents an MD5 hash for valid file. If, for some reason, one or more bits within a hash flip, the error cannot be detected or even corrected. 
 
-Therefore, SFC introduces error-stable Hashes (in short ES-hashes) by using error-correcting codes (likely reed-solomon or similar). So, instead of MD5, ES-MD5 is used and so on. The representation is in the form of md5_in_hex-ecc_data.
+Therefore, SFC introduces Reed-Solomon-Hashes (in short RS-Hashes) by using Reed-Solomon error-correcting codes. So, instead of MD5, RS-MD5 is used and so on. The hash is extended by an error-correcting Reed-Solomon code with one fourth of the size of the hash. For example, RS-MD5 extends the 16 byte (128 bits) MD5 hash with an additional 4 bytes (32 bits) of error-correcting Reed-Solomon code. A MD5 hash of 86fb269d190d2c85f6e0468ceca42a20 will be extended by 0e4e03a6. The recommended representation is 86fb269d-190d2c85-f6e0468c-eca42a20/0e4e03a6.
 
 Note: This concept should intuatively be called ECC-Hashes (due to the use of error-correcting codes), however the term ECC-Hash is used in the community for Eliptic Curve Cryptography. 
 
@@ -114,7 +114,7 @@ The first implementation of SFC aims to implement the following features:
  * SQLite database
  * asymmetric file and meta data encryption using RSA
  * symmetric file and meta data encryption using AES
- * ES-Hashes
+ * RS-Hashes
  * create a new SFC
  * add files/meta-data to a SFC
  * read/extract files/meta-data from a SFC
