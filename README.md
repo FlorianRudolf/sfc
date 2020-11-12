@@ -54,6 +54,7 @@ File meta data is simply key/value pair for a some domain (global, file, file oc
 
 Global meta data:
  * SFC_DEFAULT_KEY_ID -> Integer (Key ID)
+ * SFC_HASH_MAPPING_KEY_ID -> Integer (Key ID)
 
 File meta data:
  * SFC_FILESIZE -> Integer
@@ -73,7 +74,7 @@ All binary data within the database is base64 encoded. This is especially true f
 
 ## Encrypted hash mapping
 
-Needed for fast file identification.
+This mapping is needed for fast file identification. For each file added to the SFC, the RSECC-SHA256 hash from the source is encrypted with the corresponding key (SFC_HASH_MAPPING_KEY_ID) and mapped to the file itself. If there already is an entry for the encrypted RSECC-SHA256, the corresponding file is used and another file occurrence/instance is created. This hashes of this mapping are always encrypted (even if nothing inside the SFC is encrypted) with the same key (SFC_HASH_MAPPING_KEY_ID) and this key cannot be deleted.
 
 ## RSECC-Hashes
 
@@ -115,7 +116,7 @@ MetaData
  * value: String
  
 EncryptedHash
- * encrypted_hash: string, primary_key
+ * encrypted_rsecc_sha256_source: string, primary_key
  * file_id: Integer, references(File.id)
  
 # Reference implementation
