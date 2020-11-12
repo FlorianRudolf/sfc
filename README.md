@@ -50,13 +50,15 @@ SFC is required to store the following key data:
  
 ## Meta data
 
-Specified global meta data:
+File meta data is simply key/value pair for a some domain (global, file, file occurrence/instance). Keys with the prefix SFC_ are reserved. The following meta data keys are defined:
+
+Global meta data:
  * SFC_DEFAULT_KEY_ID -> Integer (Key ID)
 
-Specified file meta data:
- * SFC_SIZE -> Integer
+File meta data:
+ * SFC_FILESIZE -> Integer
 
-Specified file instance meta data:
+File occurrence/instance meta data:
  * SFC_FILEPATH -> String
  * SFC_MODIFICATION_TIME -> String (ISO Timestamp)
  * SFC_ACCESS_TIME -> String (ISO Timestamp)
