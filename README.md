@@ -20,7 +20,9 @@ The basic design of SFC is a combination of:
  * An SQLite database which stores meta information of the files in the container
  * A container file (like tar)
 
-The SQLite database as well as the files are stored in the container file. The information which is included in the SQLite database references other files in the container file.
+The SQLite database as well as the files are stored in the container file. The information which is included in the SQLite database references other files in the container file. The design is inspired by Apples MobileSync backup.
+
+Due to the lack of support for updating/removing files within a tar file as well as reading SQLite databases from inside a tar file using python standard library, it may be considered to give up (for now) the idea of putting the file inside a file container.
  
 # Concepts
 
